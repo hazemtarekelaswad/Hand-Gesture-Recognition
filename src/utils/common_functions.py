@@ -3,6 +3,41 @@ import numpy as np
 from skimage.exposure import histogram
 from matplotlib.pyplot import bar
 from skimage.color import rgb2gray, gray2rgb, rgba2rgb
+import os
+import cv2
+
+
+'''
+Read images from the root directory with specific format
+@ret: list of images, and list of labels 
+'''
+def read_images(dataset_path: str):
+
+    images = []
+    labels = []
+    for dirpath, _, filenames in os.walk(dataset_path):
+        if not filenames: continue
+
+        for file in filenames:
+            if not file.endswith('.jpg') and not file.endswith('.JPG'): 
+                print(f'File {file} is not a jpg file. Skipping...')
+                continue
+
+            file_path = os.path.join(dirpath, file)
+
+            # to avoid reading corrupted images
+            image = cv2.imread(file_path)
+            if image is None:
+                print(f'File {file} is not a valid image. Skipping...')
+                continue
+            
+            images.append(image)
+            labels.append(int(file[0]))
+    
+    return images, labels
+
+
+
 
 
 def change_gray_range(image: np.ndarray, format: int = 255) -> np.ndarray:

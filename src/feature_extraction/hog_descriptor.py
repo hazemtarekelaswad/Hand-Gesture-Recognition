@@ -29,20 +29,16 @@ class HogDescriptor:
         # divide the image into blocks
         magnitude_blocks = divide_image(magnitude, HOG_CELL_SIZE)
         direction_blocks = divide_image(direction, HOG_CELL_SIZE)
+        print(magnitude_blocks.shape[0])
 
         # calculate the histogram for each block
         histograms = []
         for i in range(magnitude_blocks.shape[0]):
-            for j in range(magnitude_blocks.shape[1]):
-                magnitude_block = magnitude_blocks[i, j]
-                direction_block = direction_blocks[i, j]
-
-                # calculate the histogram for the block
-                histogram = self.calculate_block_histogram(
-                    magnitude_block, direction_block)
-
-                histograms.append(histogram)
-
+            magnitude_block = magnitude_blocks[i]
+            direction_block = direction_blocks[i]
+            histogram = self.calculate_block_histogram(
+                magnitude_block, direction_block)
+            histograms.append(histogram)
         return histograms
 
     def calculate_block_histogram(self, magnitude_block, direction_block):

@@ -7,19 +7,43 @@ import os
 import cv2
 
 
+def divide_image(img, cell_size) -> np.ndarray:
+    """
+    Divides an image into blocks of size cell_size x cell_size, has to be divisible by the image size
+    @param img: the image
+    @param cell_size: the size of the block
+    @return: the blocks of the image
+    """
+    # check if the image is divisible by the cell size
+    if img.shape[0] % cell_size != 0 or img.shape[1] % cell_size != 0:
+        print(f'Image size {img.shape} is not divisible by {cell_size}')
+        return None
+
+    # divide the image into blocks
+    blocks = []
+    # divide the image without using a for loop
+    blocks = img.reshape(
+        img.shape[0] // cell_size, cell_size, img.shape[1] // cell_size, cell_size).swapaxes(1, 2).reshape(-1, cell_size, cell_size)
+
+    return blocks
+
+
 '''
 Read images from the root directory with specific format
 @ret: list of images, and list of labels 
 '''
+
+
 def read_images(dataset_path: str):
 
     images = []
     labels = []
     for dirpath, _, filenames in os.walk(dataset_path):
-        if not filenames: continue
+        if not filenames:
+            continue
 
         for file in filenames:
-            if not file.endswith('.jpg') and not file.endswith('.JPG'): 
+            if not file.endswith('.jpg') and not file.endswith('.JPG'):
                 print(f'File {file} is not a jpg file. Skipping...')
                 continue
 
@@ -30,14 +54,11 @@ def read_images(dataset_path: str):
             if image is None:
                 print(f'File {file} is not a valid image. Skipping...')
                 continue
-            
+
             images.append(image)
             labels.append(int(file[0]))
-    
+
     return images, labels
-
-
-
 
 
 def change_gray_range(image: np.ndarray, format: int = 255) -> np.ndarray:

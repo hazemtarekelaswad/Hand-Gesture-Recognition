@@ -29,7 +29,6 @@ class HogDescriptor:
         # divide the image into blocks
         magnitude_blocks = divide_image(magnitude, HOG_CELL_SIZE)
         direction_blocks = divide_image(direction, HOG_CELL_SIZE)
-        print(magnitude_blocks.shape[0])
 
         # calculate the histogram for each block
         histograms = []
@@ -86,6 +85,8 @@ class HogDescriptor:
         histogram[bin_index_2] += magnitude * bin_contribution_2
 
         return histogram
+
+    # histogram normalization
 
     def builtin_hog_descriptor(self, images):
         """

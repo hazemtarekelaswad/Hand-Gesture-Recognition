@@ -57,10 +57,33 @@ class HogDescriptor:
 
     def calculate_pixel_histogram(self, magnitude, direction, histogram):
         # calculate the bin index
-        bin_index = int(direction / (360 / HOG_BIN_COUNT))
+        bin_value = direction / (np.pi * 2 / HOG_BIN_COUNT)
+        # get contribution of the two bins around the bin value
+        bin_index_1 = int(bin_value) % (HOG_BIN_COUNT)
+        bin_index_2 = (bin_index_1 + 1) % (HOG_BIN_COUNT)
+        bin_contribution_1 = 1 - (bin_value - int(bin_value))
+        bin_contribution_2 = 1 - bin_contribution_1
+        # case bin_value = 9
+        # bin_index_1 = 9 % 9 = 0
+        # bin_index_2 = (0 + 1) % 9 = 1
+        # bin_contribution_1 = 1 - (9 - 9) = 1
+        # bin_contribution_2 = 1 - 1 = 0
 
-        # add the magnitude to the bin
-        histogram[bin_index] += magnitude
+        # case bin_value = 8.6
+        # bin_index_1 = 8.6 % 9 = 8
+        # bin_index_2 = (8 + 1) % 9 = 0
+        # bin_contribution_1 = 1 - (8.6 - 8) = 0.4
+        # bin_contribution_2 = 1 - 0.4 = 0.6
+
+        # case bin_value = 0.1
+        # bin_index_1 = 0.1 % 9 = 0
+        # bin_index_2 = (0 + 1) % 9 = 1
+        # bin_contribution_1 = 1 - (0.1 - 0) = 0.9
+        # bin_contribution_2 = 1 - 0.9 = 0.1
+
+        # add the contribution to the histogram
+        histogram[bin_index_1] += magnitude * bin_contribution_1
+        histogram[bin_index_2] += magnitude * bin_contribution_2
 
         return histogram
 

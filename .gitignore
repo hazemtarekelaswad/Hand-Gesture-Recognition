@@ -2,3 +2,5 @@ __pycache__
 dataset
 dataset_sample
 pp_dataset
+src/
+    *.ipynb

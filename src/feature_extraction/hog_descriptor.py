@@ -27,26 +27,29 @@ class HogDescriptor:
     # calculate the histogram of the gradient for a block of the image (HOG_CELL_SIZE x HOG_CELL_SIZE)
     def calculate_histogram(self, magnitude, direction):
         # divide the image into blocks
-        magnitude_blocks = divide_image(magnitude, HOG_CELL_SIZE)
-        direction_blocks = divide_image(direction, HOG_CELL_SIZE)
-
-        # calculate the histogram for each block
+        magnitude_cells = divide_image(magnitude, HOG_CELL_SIZE)
+        direction_cells = divide_image(direction, HOG_CELL_SIZE)
+        # magnitude blocks are now read as (numnbers are blocks)
+        # [0, 1, 2, 3]
+        # [4, 5, 6, 7]
+        # [8, 9, 10, 11]
+        # [12, 13, 14, 15]
         histograms = []
-        for i in range(magnitude_blocks.shape[0]):
-            magnitude_block = magnitude_blocks[i]
-            direction_block = direction_blocks[i]
-            histogram = self.calculate_block_histogram(
-                magnitude_block, direction_block)
+        for i in range(magnitude_cells.shape[0]):
+            magnitude_cell = magnitude_cells[i]
+            direction_cell = direction_cells[i]
+            histogram = self.calculate_cell_histogram(
+                magnitude_cell, direction_cell)
             histograms.append(histogram)
         return histograms
 
-    def calculate_block_histogram(self, magnitude_block, direction_block):
+    def calculate_cell_histogram(self, magnitude_cell, direction_cell):
         # calculate the histogram for the block
         histogram = np.zeros((HOG_BIN_COUNT, 1))
-        for i in range(magnitude_block.shape[0]):
-            for j in range(magnitude_block.shape[1]):
-                magnitude = magnitude_block[i, j]
-                direction = direction_block[i, j]
+        for i in range(magnitude_cell.shape[0]):
+            for j in range(magnitude_cell.shape[1]):
+                magnitude = magnitude_cell[i, j]
+                direction = direction_cell[i, j]
 
                 # calculate the histogram for the pixel
                 histogram = self.calculate_pixel_histogram(
@@ -86,7 +89,43 @@ class HogDescriptor:
 
         return histogram
 
-    # histogram normalization
+        # given blocks (probably 2x2) of histograms, concatenate them into one histogram (probably 1x36), and normalize it
+
+    def normalize_blocks_histogram(self, blocks_histogram):
+        # concatenate the histograms (3D array that came 2x2x9)
+        histogram = np.concatenate(blocks_histogram, axis=0)
+        # # normalize the
+        # print("1 concat")
+        # print(histogram)
+        # # we nee to convert it to 1D array, since it's 2D array
+        histogram = histogram.flatten()
+        # print("2 concat")
+        # print(histogram)
+        if np.linalg.norm(histogram) == 0:
+            return histogram
+
+        histogram = histogram / np.linalg.norm(histogram)
+        # print("after")
+        # print(histogram)
+        return histogram
+
+    # function to extract the right 4 blocks histograms from the given list, then pass it to normalize_blocks_histogram function
+    # total divisions would be 15x7 = 105, since the stride is 8
+    def extract_feature_from_histogram(self, histograms):
+        feature_vector = []
+        histograms_2d = map_list_to_2D_nparray(
+            histograms, HOG_WIDHT/HOG_CELL_SIZE)
+        for i in range(0, int(HOG_HEIGHT/HOG_CELL_SIZE - 1), int(HOG_BLOCK_STRIDE/HOG_CELL_SIZE)):
+            for j in range(0, int(HOG_WIDHT/HOG_CELL_SIZE - 1), int(HOG_BLOCK_STRIDE/HOG_CELL_SIZE)):
+                block_histograms = histograms_2d[i:i+2, j:j+2]
+                # print("main (no concat)")
+                # print(block_histograms)
+                feature_vector += self.normalize_blocks_histogram(
+                    block_histograms).tolist()
+
+        # make it 1D np.array
+        feature_vector = np.array(feature_vector).flatten()
+        return feature_vector
 
     def builtin_hog_descriptor(self, images):
         """
@@ -132,3 +171,34 @@ class HogDescriptor:
 
         # # show image
         # show_images([img], ['image'])
+
+    def extract_features(self, images):
+        features = []
+        for image in images:
+            current_image = image.copy()
+            current_image = any2gray(current_image)
+            current_image = change_gray_range(current_image, 255)
+            resized_image = self.resize_image(current_image)
+            magnitude, direction = self.calculate_gradient(resized_image)
+            histogram = self.calculate_histogram(magnitude, direction)
+            feature = self.extract_feature_from_histogram(histogram)
+            features.append(feature)
+
+        return features
+
+    def error_calculation(self, features_manual: list, features_builtin: list) -> float:
+        """
+            Calculates the error between the two features
+            @param features_manual: the features calculated manually
+            @param features_builtin: the features calculated using the built-in function
+            @return: the error between the two features
+        """
+
+        error = 0
+        for i in range(len(features_manual)):
+            error += np.sum(np.abs(features_manual[i] -
+                                   features_builtin[i]))
+        error = error / (len(features_manual) *
+                         len(features_manual[0]))
+
+        return error

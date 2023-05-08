@@ -7,7 +7,7 @@ import os
 import cv2
 
 
-def divide_image(img, cell_size):
+def divide_image(img, cell_size) -> np.ndarray:
     """
     Divides an image into blocks of size cell_size x cell_size, has to be divisible by the image size
     @param img: the image

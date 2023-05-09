@@ -36,7 +36,7 @@ def run_preprocessor(dataset_path: str, dest_path: str):
         Preprocesses the images and saves them in the destination path
         @param dataset_path: the path to the dataset
         @param dest_path: the path to save the preprocessed images
-        @return: array of images and array of labels
+        @return: array of preprocessed images and array of labels
     """
 
     images, labels = read_images(dataset_path)
@@ -44,8 +44,9 @@ def run_preprocessor(dataset_path: str, dest_path: str):
     # preprocess all images
     pp_images = []
     for i in range(len(images)):
+        print(f'Preprocessing image {i}...')
         images[i] = preprocess_image(images[i])
         cv2.imwrite(os.path.join(dest_path, f'{labels[i]}_{i}.JPG'), images[i])
         pp_images.append(images[i])
     
-    return images, labels
+    return pp_images, labels

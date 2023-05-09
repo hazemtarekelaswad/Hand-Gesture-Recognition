@@ -64,7 +64,8 @@ def read_images(dataset_path: str):
             if image is None:
                 print(f'File {file} is not a valid image. Skipping...')
                 continue
-
+            
+            print(f'Reading image {file_path}...')
             images.append(image)
             labels.append(int(file[0]))
 

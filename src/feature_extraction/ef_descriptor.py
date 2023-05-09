@@ -13,7 +13,7 @@ def elliptical_fourier(image: np.ndarray):
     threshold = 255 // 2
     image[image > threshold] = 255
     image[image <= threshold] = 0
-    
+
     contours, _ = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
     max_contour = max(contours, key = cv2.contourArea)
 
@@ -41,6 +41,7 @@ def run_elliptical_fourier(pp_dataset_path: str, dest_path: str):
 
     images_features = []
     for i in range(len(images)):
+        print(f'Extracting features from image [EFD]: {i}...')
         features = elliptical_fourier(images[i])
         images_features.append(features)
     

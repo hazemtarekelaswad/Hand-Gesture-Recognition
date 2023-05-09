@@ -154,10 +154,13 @@ class HogDescriptor:
         cv2_hog = cv2.HOGDescriptor(win_size, block_size,
                                     block_stride, cell_size, nbins)
         for image in images:
+            print(f'Extracting features from image HOG_BUILTIN: {images.index(image)} ...')
             current_image = image.copy()
             current_image = self.resize_image(current_image)
             hog_feature = cv2_hog.compute(current_image)
             hog_features.append(hog_feature)
+        
+        hog_features = np.array(hog_features)
 
         return hog_features
 
@@ -181,6 +184,7 @@ class HogDescriptor:
     def extract_features(self, images):
         features = []
         for image in images:
+            print(f'Extracting features from image HOG_CUSTOM: {images.index(image)} ...')
             current_image = image.copy()
             current_image = any2gray(current_image)
             current_image = change_gray_range(current_image, 255)
@@ -190,6 +194,7 @@ class HogDescriptor:
             feature = self.extract_feature_from_histogram(histogram)
             features.append(feature)
 
+        features = np.array(features)
         return features
 
     def error_calculation(self, features_manual: list, features_builtin: list) -> float:

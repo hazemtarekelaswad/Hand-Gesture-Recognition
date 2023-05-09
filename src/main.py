@@ -1,3 +1,5 @@
+import time
+import cv2
 from pre_processing import pre_processing as pp
 from model_training import *
 from feature_extraction import ef_descriptor as efd
@@ -7,17 +9,50 @@ import numpy as np
 from utils.common_functions import read_images, change_gray_range
 
 
-# Run the whole pipeline to a single image
 def classify(image):
     pp_image = pp.preprocess_image(image)
     efd_features = efd.elliptical_fourier(pp_image)
-    hog_descriptor = hog.HogDescriptor()
-    hog_features_custom = hog_descriptor.extract_features_from_image(pp_image)
-    # hog_features_builtin = hog_descriptor.builtin_hog_descriptor(pp_image)
-    hog_efd_features_custom = np.concatenate((hog_features_custom, efd_features), axis=1)
+    # TODO: HOG descriptor for one image
+   
+    # hog_efd_features_custom = np.concatenate((hog_features_custom, efd_features), axis=1)
     # hog_efd_features_builtin = np.concatenate((hog_features_builtin, efd_features), axis=1)
     
-    ## TODO: Classify the image using the trained model
+    # TODO: Classify the image using the trained model
+    # TODO: Return the image class
+
+
+def run_pipline(src_path: str, dest_path: str):
+    results = []
+    times = []
+
+    for dirpath, _, filenames in os.walk(src_path):
+        if not filenames:
+            continue
+
+        for file in filenames:
+            if not file.endswith('.jpg') and not file.endswith('.JPG'):
+                print(f'File {file} is not a jpg file. Skipping...')
+                continue
+
+            file_path = os.path.join(dirpath, file)
+
+            image = cv2.imread(file_path)
+            if image is None:
+                print(f'File {file} is not a valid image. Skipping...')
+                continue
+            
+            print(f'Reading image {file_path}...')
+
+            start_time = time.time()
+            image_class = classify(image)
+            end_time = time.time()
+            
+            print(f'Image {file_path} is classified as {image_class} in {end_time - start_time} seconds.')
+            results.append(image_class)
+            times.append(end_time - start_time)
+    
+    # TODO: write results and times to 2 files
+            
 
 
 def preprocessing():
@@ -34,8 +69,6 @@ def feature_extraction():
         pp_dataset_path = os.path.join(os.path.dirname(__file__), '../pp_dataset')
     )
     np.save(os.path.join(os.path.dirname(__file__), '../features/efd_features.npy'), efd_features)
-
-
 
     pp_images, labels = read_images(os.path.join(os.path.dirname(__file__), '../pp_dataset'))
     # FEATURE EXTRACTION [HOG_BUILTIN]
@@ -64,5 +97,16 @@ def feature_extraction():
 
 
 if __name__ == "__main__":
-    preprocessing()
+    ## TRAINING PHASE
+
+    # preprocessing()
     feature_extraction()
+
+
+
+    ## TESTING PHASE
+
+    # run_pipline(
+    #     src_path = os.path.join(os.path.dirname(__file__), '../test_dataset'),
+    #     dest_path = os.path.join(os.path.dirname(__file__), '../test_output')
+    # )

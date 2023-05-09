@@ -133,7 +133,7 @@ class HogDescriptor:
 ##############################################################################################################
 ##############################################################################################################
 
-    def builtin_hog_descriptor(self, pp_dataset_path: str):
+    def builtin_hog_descriptor(self, images):
         """
         Extracts the HOG features of the images using OpenCV built-in function
         @param images: the images (grayscaled for evaluation)
@@ -153,31 +153,14 @@ class HogDescriptor:
         nbins = HOG_BIN_COUNT
         cv2_hog = cv2.HOGDescriptor(win_size, block_size,
                                     block_stride, cell_size, nbins)
-        
-        for dirpath, _, filenames in os.walk(pp_dataset_path):
-            if not filenames:
-                continue
+        for image in images:
+            current_image = image.copy()
+            current_image = self.resize_image(current_image)
+            hog_feature = cv2_hog.compute(current_image)
+            hog_features.append(hog_feature)
 
-            for file in filenames:
-                if not file.endswith('.jpg') and not file.endswith('.JPG'):
-                    print(f'File {file} is not a jpg file. Skipping...')
-                    continue
-
-                file_path = os.path.join(dirpath, file)
-
-                # to avoid reading corrupted images
-                image = cv2.imread(file_path)
-                if image is None:
-                    print(f'File {file} is not a valid image. Skipping...')
-                    continue
-                
-                print(f'Extracting features from image HOG_BUILTIN{file}...')
-                current_image = image.copy()
-                current_image = self.resize_image(current_image)
-                hog_feature = cv2_hog.compute(current_image)
-                hog_features.append(hog_feature)
-
-        return np.array(hog_features)
+        hog_features = np.array(hog_features)
+        return hog_features
 
         # # extract hog features to have 3780 features per image
         # win_size = (128, 64)
@@ -196,41 +179,20 @@ class HogDescriptor:
         # # show image
         # show_images([img], ['image'])
 
-    def extract_features_from_image(self, image):
-        current_image = image.copy()
-        current_image = any2gray(current_image)
-        current_image = change_gray_range(current_image, 255)
-        resized_image = self.resize_image(current_image)
-        magnitude, direction = self.calculate_gradient(resized_image)
-        histogram = self.calculate_histogram(magnitude, direction)
-        feature = self.extract_feature_from_histogram(histogram)
-        return feature
-
-    def extract_features(self, pp_dataset_path: str):
+    def extract_features(self, images):
         features = []
+        for image in images:
+            current_image = image.copy()
+            current_image = any2gray(current_image)
+            current_image = change_gray_range(current_image, 255)
+            resized_image = self.resize_image(current_image)
+            magnitude, direction = self.calculate_gradient(resized_image)
+            histogram = self.calculate_histogram(magnitude, direction)
+            feature = self.extract_feature_from_histogram(histogram)
+            features.append(feature)
 
-        for dirpath, _, filenames in os.walk(pp_dataset_path):
-            if not filenames:
-                continue
-
-            for file in filenames:
-                if not file.endswith('.jpg') and not file.endswith('.JPG'):
-                    print(f'File {file} is not a jpg file. Skipping...')
-                    continue
-
-                file_path = os.path.join(dirpath, file)
-
-                # to avoid reading corrupted images
-                image = cv2.imread(file_path)
-                if image is None:
-                    print(f'File {file} is not a valid image. Skipping...')
-                    continue
-                
-                print(f'Extracting features from image HOG_CUSTOM: {file}...')
-                feature = self.extract_features_from_image(image)
-                features.append(feature)
-
-        return np.array(features)
+        features = np.array(features)
+        return features
 
     def error_calculation(self, features_manual: list, features_builtin: list) -> float:
         """

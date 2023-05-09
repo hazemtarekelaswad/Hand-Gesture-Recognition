@@ -4,6 +4,8 @@ from feature_extraction import ef_descriptor as efd
 from feature_extraction import hog_descriptor as hog
 import os
 import numpy as np
+from utils.common_functions import read_images, change_gray_range
+
 
 # Run the whole pipeline to a single image
 def classify(image):
@@ -34,18 +36,16 @@ def feature_extraction():
     np.save(os.path.join(os.path.dirname(__file__), '../features/efd_features.npy'), efd_features)
 
 
+
+    pp_images, labels = read_images(os.path.join(os.path.dirname(__file__), '../pp_dataset'))
     # FEATURE EXTRACTION [HOG_BUILTIN]
     hog_descriptor = hog.HogDescriptor()
-    hog_features_builtin = hog_descriptor.builtin_hog_descriptor(
-        pp_dataset_path = os.path.join(os.path.dirname(__file__), '../pp_dataset')
-    )
+    hog_features_builtin = hog_descriptor.builtin_hog_descriptor(pp_images)
     np.save(os.path.join(os.path.dirname(__file__), '../features/hog_features_builtin.npy'), hog_features_builtin)
 
 
     # FEATURE EXTRACTION [HOG_CUSTOM]
-    hog_features_custom = hog_descriptor.extract_features(
-        pp_dataset_path = os.path.join(os.path.dirname(__file__), '../pp_dataset')
-    )
+    hog_features_custom = hog_descriptor.extract_features(pp_images)
     np.save(os.path.join(os.path.dirname(__file__), '../features/hog_features_custom.npy'), hog_features_custom)
 
 
@@ -64,5 +64,5 @@ def feature_extraction():
 
 
 if __name__ == "__main__":
-    # preprocessing()
+    preprocessing()
     feature_extraction()

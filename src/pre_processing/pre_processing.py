@@ -39,14 +39,30 @@ def run_preprocessor(dataset_path: str, dest_path: str):
         @return: array of preprocessed images and array of labels
     """
 
-    images, labels = read_images(dataset_path)
+    # images, labels = read_images(dataset_path)
 
-    # preprocess all images
-    pp_images = []
-    for i in range(len(images)):
-        print(f'Preprocessing image {i}...')
-        images[i] = preprocess_image(images[i])
-        cv2.imwrite(os.path.join(dest_path, f'{labels[i]}_{i}.JPG'), images[i])
-        pp_images.append(images[i])
-    
-    return pp_images, labels
+
+    labels = []
+    for dirpath, _, filenames in os.walk(dataset_path):
+        if not filenames:
+            continue
+
+        for file in filenames:
+            if not file.endswith('.jpg') and not file.endswith('.JPG'):
+                print(f'File {file} is not a jpg file. Skipping...')
+                continue
+
+            file_path = os.path.join(dirpath, file)
+
+            # to avoid reading corrupted images
+            image = cv2.imread(file_path)
+            if image is None:
+                print(f'File {file} is not a valid image. Skipping...')
+                continue
+
+            print(f'Preprocessing image {file_path}...')
+            image = preprocess_image(image)
+            cv2.imwrite(os.path.join(dest_path, f'{file}'), image)
+            labels.append(int(file[0]))
+            
+    return np.array(labels)

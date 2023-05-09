@@ -29,7 +29,7 @@ def elliptical_fourier(image: np.ndarray):
 ##############################################################################################################
 ##############################################################################################################
 
-def run_elliptical_fourier(pp_dataset_path: str, dest_path: str):
+def run_elliptical_fourier(pp_dataset_path: str):
     """
         Extracts the EFD features from coefficints of the images using OpenCV built-in function 
         and saves them in the destination path
@@ -37,16 +37,27 @@ def run_elliptical_fourier(pp_dataset_path: str, dest_path: str):
         @param dest_path: the path to save the features
         @return: 2d numpy array of features (each row represents an image) and 1d numpy array of labels
     """
-    images, labels = read_images(pp_dataset_path)
 
     images_features = []
-    for i in range(len(images)):
-        print(f'Extracting features from image [EFD]: {i}...')
-        features = elliptical_fourier(images[i])
-        images_features.append(features)
-    
-    images_features = np.array(images_features)
+    for dirpath, _, filenames in os.walk(pp_dataset_path):
+        if not filenames:
+            continue
 
-    np.save(os.path.join(os.path.dirname(__file__), dest_path, 'efd_features.npy'), images_features)
+        for file in filenames:
+            if not file.endswith('.jpg') and not file.endswith('.JPG'):
+                print(f'File {file} is not a jpg file. Skipping...')
+                continue
 
-    return images_features, labels
+            file_path = os.path.join(dirpath, file)
+
+            # to avoid reading corrupted images
+            image = cv2.imread(file_path)
+            if image is None:
+                print(f'File {file} is not a valid image. Skipping...')
+                continue
+            
+            print(f'Extracting features from image [EFD]: {file}...')
+            features = elliptical_fourier(image)
+            images_features.append(features)
+
+    return np.array(images_features)

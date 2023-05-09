@@ -5,26 +5,49 @@ from feature_extraction import hog_descriptor as hog
 import os
 import numpy as np
 
-def main():
+# Run the whole pipeline to a single image
+def classify(image):
+    pp_image = pp.preprocess_image(image)
+    efd_features = efd.elliptical_fourier(pp_image)
+    hog_descriptor = hog.HogDescriptor()
+    hog_features_custom = hog_descriptor.extract_features_from_image(pp_image)
+    # hog_features_builtin = hog_descriptor.builtin_hog_descriptor(pp_image)
+    hog_efd_features_custom = np.concatenate((hog_features_custom, efd_features), axis=1)
+    # hog_efd_features_builtin = np.concatenate((hog_features_builtin, efd_features), axis=1)
+    
+    ## TODO: Classify the image using the trained model
+
+
+def preprocessing():
     # PREPROCESSING
-    pp_images, labels = pp.run_preprocessor(
-        dataset_path = os.path.join(os.path.dirname(__file__), '../dataset_sample'),
+    labels = pp.run_preprocessor(
+        dataset_path = os.path.join(os.path.dirname(__file__), '../dataset'),
         dest_path = os.path.join(os.path.dirname(__file__), '../pp_dataset')
     )
+    np.save(os.path.join(os.path.dirname(__file__), '../features/labels.npy'), labels)
 
+def feature_extraction():
     # FEATURE EXTRACTION [EFD]
-    efd_features, labels = efd.run_elliptical_fourier(
-        pp_dataset_path = os.path.join(os.path.dirname(__file__), '../pp_dataset'),
-        dest_path = os.path.join(os.path.dirname(__file__), '../features')
+    efd_features = efd.run_elliptical_fourier(
+        pp_dataset_path = os.path.join(os.path.dirname(__file__), '../pp_dataset')
     )
+    np.save(os.path.join(os.path.dirname(__file__), '../features/efd_features.npy'), efd_features)
 
-    # FEATURE EXTRACTION [HOG]
+
+    # FEATURE EXTRACTION [HOG_BUILTIN]
     hog_descriptor = hog.HogDescriptor()
-    hog_features_builtin = hog_descriptor.builtin_hog_descriptor(pp_images)
-    hog_features_custom = hog_descriptor.extract_features(pp_images)
-
+    hog_features_builtin = hog_descriptor.builtin_hog_descriptor(
+        pp_dataset_path = os.path.join(os.path.dirname(__file__), '../pp_dataset')
+    )
     np.save(os.path.join(os.path.dirname(__file__), '../features/hog_features_builtin.npy'), hog_features_builtin)
+
+
+    # FEATURE EXTRACTION [HOG_CUSTOM]
+    hog_features_custom = hog_descriptor.extract_features(
+        pp_dataset_path = os.path.join(os.path.dirname(__file__), '../pp_dataset')
+    )
     np.save(os.path.join(os.path.dirname(__file__), '../features/hog_features_custom.npy'), hog_features_custom)
+
 
     # FEATURE EXTRACTION [HOG + EFD]
     hog_efd_features_builtin = np.concatenate((hog_features_builtin, efd_features), axis=1)
@@ -39,5 +62,7 @@ def main():
 
     # efd_features = np.load(os.path.join(os.path.dirname(__file__), '../features/efd_features.npy'))
 
+
 if __name__ == "__main__":
-    main()
+    # preprocessing()
+    feature_extraction()

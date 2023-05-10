@@ -29,6 +29,18 @@ def elliptical_fourier(image: np.ndarray):
 ##############################################################################################################
 ##############################################################################################################
 
+def extract_features(pp_images):
+    images_features = []
+
+    for i, image in enumerate(pp_images):            
+        print(f'Extracting features from image [EFD] {i + 1}...')
+        features = elliptical_fourier(image)
+        images_features.append(features)
+
+    return np.array(images_features)
+
+
+
 def run_elliptical_fourier(pp_dataset_path: str):
     """
         Extracts the EFD features from coefficints of the images using OpenCV built-in function 

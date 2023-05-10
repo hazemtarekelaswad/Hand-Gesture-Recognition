@@ -64,16 +64,20 @@ def preprocessing():
 
 def feature_extraction():
     # FEATURE EXTRACTION [EFD]
-    efd_features, efd_labels = efd.run_elliptical_fourier(
-        pp_dataset_path = os.path.join(os.path.dirname(__file__), '../pp_dataset')
-    )
-    # append labels to the features at the first column
-    np.save(os.path.join(os.path.dirname(__file__), '../features/efd_features.npy'), efd_features)
-    np.save(os.path.join(os.path.dirname(__file__), '../features/efd_labels.npy'), efd_labels)
+    # efd_features, efd_labels = efd.run_elliptical_fourier(
+    #     pp_dataset_path = os.path.join(os.path.dirname(__file__), '../pp_dataset')
+    # )
+    # # append labels to the features at the first column
+    # np.save(os.path.join(os.path.dirname(__file__), '../features/efd_features.npy'), efd_features)
+    # np.save(os.path.join(os.path.dirname(__file__), '../features/efd_labels.npy'), efd_labels)
 
 
     pp_images, labels = read_images(os.path.join(os.path.dirname(__file__), '../pp_dataset'))
     np.save(os.path.join(os.path.dirname(__file__), '../features/labels.npy'), labels)
+
+    # FEATURE EXTRACTION [EFD]
+    efd_features = efd.extract_features(pp_images)
+    np.save(os.path.join(os.path.dirname(__file__), '../features/efd_features.npy'), efd_features)
 
     # FEATURE EXTRACTION [HOG_BUILTIN]
     hog_descriptor = hog.HogDescriptor()

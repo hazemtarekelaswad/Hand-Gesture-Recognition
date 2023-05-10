@@ -7,18 +7,18 @@ import cv2
 from pyefd import elliptic_fourier_descriptors, reconstruct_contour, plot_efd, normalize_efd
 
 
-def elliptical_fourier(image: np.ndarray):
+def elliptical_fourier(image: np.ndarray, order: int):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     threshold = 255 // 2
     image[image > threshold] = 255
     image[image <= threshold] = 0
 
-    contours, _ = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+    contours, _ = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     max_contour = max(contours, key = cv2.contourArea)
 
     max_contour = max_contour.reshape(max_contour.shape[0], max_contour.shape[2])
-    coefficients = elliptic_fourier_descriptors(max_contour, order=10)
+    coefficients = elliptic_fourier_descriptors(max_contour, order=order)
 
     coefficients = normalize_efd(coefficients)
     return coefficients.flatten()[3:]
@@ -29,12 +29,12 @@ def elliptical_fourier(image: np.ndarray):
 ##############################################################################################################
 ##############################################################################################################
 
-def extract_features(pp_images):
+def extract_features(pp_images, order):
     images_features = []
 
     for i, image in enumerate(pp_images):            
         print(f'Extracting features from image [EFD] {i + 1}...')
-        features = elliptical_fourier(image)
+        features = elliptical_fourier(image, order)
         images_features.append(features)
 
     return np.array(images_features)

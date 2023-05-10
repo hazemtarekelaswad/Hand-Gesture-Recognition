@@ -11,7 +11,7 @@ from utils.common_functions import read_images, change_gray_range
 
 def classify(image):
     pp_image = pp.preprocess_image(image)
-    efd_features = efd.elliptical_fourier(pp_image)
+    efd_features = efd.elliptical_fourier(pp_image, 10)
     # TODO: HOG descriptor for one image
    
     # hog_efd_features_custom = np.concatenate((hog_features_custom, efd_features), axis=1)
@@ -53,6 +53,29 @@ def run_pipline(src_path: str, dest_path: str):
     # TODO: write results and times to 2 files
             
 
+def test_efd_with_different_orders():
+    
+    pp_images, labels = read_images(os.path.join(os.path.dirname(__file__), '../pp_dataset'))
+    np.save(os.path.join(os.path.dirname(__file__), '../features/labels.npy'), labels)
+
+    efd_features = efd.extract_features(pp_images, 15)
+    np.save(os.path.join(os.path.dirname(__file__), '../features/efd_features_15.npy'), efd_features)
+
+    efd_features = efd.extract_features(pp_images, 20)
+    np.save(os.path.join(os.path.dirname(__file__), '../features/efd_features_20.npy'), efd_features)
+
+    efd_features = efd.extract_features(pp_images, 25)
+    np.save(os.path.join(os.path.dirname(__file__), '../features/efd_features_25.npy'), efd_features)
+
+    efd_features = efd.extract_features(pp_images, 50)
+    np.save(os.path.join(os.path.dirname(__file__), '../features/efd_features_50.npy'), efd_features)
+
+    efd_features = efd.extract_features(pp_images, 5)
+    np.save(os.path.join(os.path.dirname(__file__), '../features/efd_features_5.npy'), efd_features)
+
+
+
+
 
 def preprocessing():
     # PREPROCESSING
@@ -76,7 +99,7 @@ def feature_extraction():
     np.save(os.path.join(os.path.dirname(__file__), '../features/labels.npy'), labels)
 
     # FEATURE EXTRACTION [EFD]
-    efd_features = efd.extract_features(pp_images)
+    efd_features = efd.extract_features(pp_images, 10)
     np.save(os.path.join(os.path.dirname(__file__), '../features/efd_features.npy'), efd_features)
 
     # FEATURE EXTRACTION [HOG_BUILTIN]
@@ -107,7 +130,7 @@ if __name__ == "__main__":
 
     # preprocessing()
     feature_extraction()
-
+    # test_efd_with_different_orders()
 
     ## TESTING PHASE
 

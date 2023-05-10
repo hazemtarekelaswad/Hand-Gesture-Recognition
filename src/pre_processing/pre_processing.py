@@ -42,7 +42,7 @@ def run_preprocessor(dataset_path: str, dest_path: str):
     # images, labels = read_images(dataset_path)
 
 
-    labels = []
+    # labels = []
     for dirpath, _, filenames in os.walk(dataset_path):
         if not filenames:
             continue
@@ -63,6 +63,6 @@ def run_preprocessor(dataset_path: str, dest_path: str):
             print(f'Preprocessing image {file_path}...')
             image = preprocess_image(image)
             cv2.imwrite(os.path.join(dest_path, f'{file}'), image)
-            labels.append(int(file[0]))
+            # labels.append(int(file[0]))
             
-    return np.array(labels)
+    # return np.array(labels)

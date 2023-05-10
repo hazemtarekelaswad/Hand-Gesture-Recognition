@@ -39,6 +39,7 @@ def run_elliptical_fourier(pp_dataset_path: str):
     """
 
     images_features = []
+    labels = []
     for dirpath, _, filenames in os.walk(pp_dataset_path):
         if not filenames:
             continue
@@ -59,5 +60,6 @@ def run_elliptical_fourier(pp_dataset_path: str):
             print(f'Extracting features from image [EFD]: {file}...')
             features = elliptical_fourier(image)
             images_features.append(features)
+            labels.append(int(file[0]))
 
-    return np.array(images_features)
+    return np.array(images_features), np.array(labels)

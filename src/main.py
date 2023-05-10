@@ -20,7 +20,6 @@ def classify(image):
     # TODO: Classify the image using the trained model
     # TODO: Return the image class
 
-
 def run_pipline(src_path: str, dest_path: str):
     results = []
     times = []
@@ -57,20 +56,25 @@ def run_pipline(src_path: str, dest_path: str):
 
 def preprocessing():
     # PREPROCESSING
-    labels = pp.run_preprocessor(
+    pp.run_preprocessor(
         dataset_path = os.path.join(os.path.dirname(__file__), '../dataset'),
         dest_path = os.path.join(os.path.dirname(__file__), '../pp_dataset')
     )
-    np.save(os.path.join(os.path.dirname(__file__), '../features/labels.npy'), labels)
+    # np.save(os.path.join(os.path.dirname(__file__), '../features/labels.npy'), labels)
 
 def feature_extraction():
     # FEATURE EXTRACTION [EFD]
-    efd_features = efd.run_elliptical_fourier(
+    efd_features, efd_labels = efd.run_elliptical_fourier(
         pp_dataset_path = os.path.join(os.path.dirname(__file__), '../pp_dataset')
     )
+    # append labels to the features at the first column
     np.save(os.path.join(os.path.dirname(__file__), '../features/efd_features.npy'), efd_features)
+    np.save(os.path.join(os.path.dirname(__file__), '../features/efd_labels.npy'), efd_labels)
+
 
     pp_images, labels = read_images(os.path.join(os.path.dirname(__file__), '../pp_dataset'))
+    np.save(os.path.join(os.path.dirname(__file__), '../features/labels.npy'), labels)
+
     # FEATURE EXTRACTION [HOG_BUILTIN]
     hog_descriptor = hog.HogDescriptor()
     hog_features_builtin = hog_descriptor.builtin_hog_descriptor(pp_images)
@@ -80,7 +84,6 @@ def feature_extraction():
     # FEATURE EXTRACTION [HOG_CUSTOM]
     hog_features_custom = hog_descriptor.extract_features(pp_images)
     np.save(os.path.join(os.path.dirname(__file__), '../features/hog_features_custom.npy'), hog_features_custom)
-
 
     # FEATURE EXTRACTION [HOG + EFD]
     hog_efd_features_builtin = np.concatenate((hog_features_builtin, efd_features), axis=1)
@@ -93,7 +96,6 @@ def feature_extraction():
     np.save(os.path.join(os.path.dirname(__file__), '../features/hog_efd_features_custom.npy'), hog_efd_features_custom)
 
 
-    # efd_features = np.load(os.path.join(os.path.dirname(__file__), '../features/efd_features.npy'))
 
 
 if __name__ == "__main__":
@@ -101,7 +103,6 @@ if __name__ == "__main__":
 
     # preprocessing()
     feature_extraction()
-
 
 
     ## TESTING PHASE

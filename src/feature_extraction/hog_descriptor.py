@@ -162,6 +162,25 @@ class HogDescriptor:
 
         return hog_feature
 
+    def builtin_hog_descriptor_all(self, images):
+
+        win_size = (HOG_WIDHT, HOG_HEIGHT)
+        block_size = (HOG_BLOCK_SIZE, HOG_BLOCK_SIZE)
+        block_stride = (HOG_CELL_SIZE, HOG_CELL_SIZE)
+        cell_size = (HOG_CELL_SIZE, HOG_CELL_SIZE)
+        nbins = HOG_BIN_COUNT
+        cv2_hog = cv2.HOGDescriptor(win_size, block_size,
+                                    block_stride, cell_size, nbins)
+        
+        hog_features = []
+        for image in images:
+            current_image = image.copy()
+            current_image = self.resize_image(current_image)
+            hog_feature = cv2_hog.compute(current_image)
+            hog_features.append(hog_feature)
+        
+        return np.array(hog_features)
+
     def extract_features(self, image):
         current_image = image.copy()
         current_image = any2gray(current_image)
@@ -172,6 +191,13 @@ class HogDescriptor:
         feature = self.extract_feature_from_histogram(histogram)
 
         return feature
+    
+    def extract_features_all(self, images):
+        features = []
+        for image in images:
+            feature = self.extract_features(image)
+            features.append(feature)
+        return np.array(features)
 
     def error_calculation(self, features_manual: list, features_builtin: list) -> float:
         """

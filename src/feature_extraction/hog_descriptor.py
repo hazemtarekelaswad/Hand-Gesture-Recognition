@@ -58,8 +58,12 @@ class HogDescriptor:
         return histogram
 
     def calculate_pixel_histogram(self, magnitude, direction, histogram):
+        # make direction range from 0 to pi instead of 0 to 2pi
+        # this is equivalent to the following code
+        direction_180 = direction % (np.pi)
+
         # calculate the bin index
-        bin_value = direction / (np.pi * 2 / HOG_BIN_COUNT)
+        bin_value = direction_180 / (np.pi / HOG_BIN_COUNT)
         # get contribution of the two bins around the bin value
         bin_index_1 = int(bin_value) % (HOG_BIN_COUNT)
         bin_index_2 = (bin_index_1 + 1) % (HOG_BIN_COUNT)
@@ -133,7 +137,7 @@ class HogDescriptor:
 ##############################################################################################################
 ##############################################################################################################
 
-    def builtin_hog_descriptor(self, images):
+    def builtin_hog_descriptor(self, image):
         """
         Extracts the HOG features of the images using OpenCV built-in function
         @param images: the images (grayscaled for evaluation)
@@ -145,7 +149,6 @@ class HogDescriptor:
             images) # images is a list of images
 
         """
-        hog_features = []
         win_size = (HOG_WIDHT, HOG_HEIGHT)
         block_size = (HOG_BLOCK_SIZE, HOG_BLOCK_SIZE)
         block_stride = (HOG_CELL_SIZE, HOG_CELL_SIZE)
@@ -153,46 +156,22 @@ class HogDescriptor:
         nbins = HOG_BIN_COUNT
         cv2_hog = cv2.HOGDescriptor(win_size, block_size,
                                     block_stride, cell_size, nbins)
-        for image in images:
-            current_image = image.copy()
-            current_image = self.resize_image(current_image)
-            hog_feature = cv2_hog.compute(current_image)
-            hog_features.append(hog_feature)
+        current_image = image.copy()
+        current_image = self.resize_image(current_image)
+        hog_feature = cv2_hog.compute(current_image)
 
-        hog_features = np.array(hog_features)
-        return hog_features
+        return hog_feature
 
-        # # extract hog features to have 3780 features per image
-        # win_size = (128, 64)
-        # block_size = (16, 16)
-        # block_stride = (8, 8)
-        # cell_size = (8, 8)
-        # nbins = 9
-        # img = images[0].copy()
-        # # img = change_gray_range(any2gray(images[0]), 255)
-        # img = cv2.resize(img, (128, 64))
-        # print(img.shape)
-        # hog = cv2.HOGDescriptor(win_size, block_size, block_stride, cell_size, nbins)
-        # feature = hog.compute(img)
-        # print(feature.shape)
+    def extract_features(self, image):
+        current_image = image.copy()
+        current_image = any2gray(current_image)
+        current_image = change_gray_range(current_image, 255)
+        resized_image = self.resize_image(current_image)
+        magnitude, direction = self.calculate_gradient(resized_image)
+        histogram = self.calculate_histogram(magnitude, direction)
+        feature = self.extract_feature_from_histogram(histogram)
 
-        # # show image
-        # show_images([img], ['image'])
-
-    def extract_features(self, images):
-        features = []
-        for image in images:
-            current_image = image.copy()
-            current_image = any2gray(current_image)
-            current_image = change_gray_range(current_image, 255)
-            resized_image = self.resize_image(current_image)
-            magnitude, direction = self.calculate_gradient(resized_image)
-            histogram = self.calculate_histogram(magnitude, direction)
-            feature = self.extract_feature_from_histogram(histogram)
-            features.append(feature)
-
-        features = np.array(features)
-        return features
+        return feature
 
     def error_calculation(self, features_manual: list, features_builtin: list) -> float:
         """

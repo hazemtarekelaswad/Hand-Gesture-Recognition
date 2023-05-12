@@ -8,13 +8,14 @@ from pyefd import elliptic_fourier_descriptors, reconstruct_contour, plot_efd, n
 
 
 def elliptical_fourier(image: np.ndarray, order: int):
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    if len(image.shape) == 3:
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    threshold = 255 // 2
-    image[image > threshold] = 255
-    image[image <= threshold] = 0
+        threshold = 255 // 2
+        image[image > threshold] = 255
+        image[image <= threshold] = 0
 
-    contours, _ = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
     max_contour = max(contours, key = cv2.contourArea)
 
     max_contour = max_contour.reshape(max_contour.shape[0], max_contour.shape[2])

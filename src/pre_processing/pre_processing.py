@@ -5,6 +5,23 @@ import cv2
 from scipy import ndimage
 from utils.common_functions import read_images, change_gray_range
 
+'''
+Crops image from the left or the right side based on the white pixels count with the threshold,
+and crops the other side (black side) with a fixed value of 20 pixels.
+'''
+def crop_image(image, threshold=40):
+    left = image[:, :threshold]
+    right = image[:, -threshold:]
+
+    white_count_left = np.sum(left == 255)
+    white_count_right = np.sum(right == 255)
+    
+    if white_count_left > white_count_right:
+        image = image[:, threshold:-20]
+    else:
+        image = image[:, 20:-threshold]
+    return image
+
 def preprocess_image(image: np.ndarray) -> np.ndarray:
     resize_ratio = 0.1
 
@@ -12,8 +29,9 @@ def preprocess_image(image: np.ndarray) -> np.ndarray:
 
     image = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
 
+    # Hand has high CR value and low CB value
     lower_bound = np.array([0, 133, 77])
-    upper_bound = np.array([255, 173, 127])
+    upper_bound = np.array([255, 173, 127]) 
     image = cv2.inRange(image, lower_bound, upper_bound)
 
     kernel = np.ones((5, 5), np.uint8)
@@ -21,15 +39,10 @@ def preprocess_image(image: np.ndarray) -> np.ndarray:
 
     image = ndimage.binary_fill_holes(image).astype(np.int8)
     image = change_gray_range(image, format=255)
+    image = crop_image(image)
 
     return image
 
-
-##############################################################################################################
-##############################################################################################################
-#####################################   U S E   T H I S   O N L Y   ##########################################
-##############################################################################################################
-##############################################################################################################
 
 def run_preprocessor(dataset_path: str, dest_path: str):
     """
@@ -39,10 +52,6 @@ def run_preprocessor(dataset_path: str, dest_path: str):
         @return: array of preprocessed images and array of labels
     """
 
-    # images, labels = read_images(dataset_path)
-
-
-    # labels = []
     for dirpath, _, filenames in os.walk(dataset_path):
         if not filenames:
             continue

@@ -2,5 +2,8 @@ __pycache__
 dataset
 dataset_sample
 pp_dataset
+features
+efd_features
+features_cropped
 src/
     *.ipynb

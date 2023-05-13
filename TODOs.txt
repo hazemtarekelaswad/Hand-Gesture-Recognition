@@ -1,0 +1,15 @@
+- Save the best model
+- run the pipline on that model
+- Inhance preprocessing
+- Tuning the parameters of the models
+- Report:
+	- Project Pipeline.
+ 	- Preprocessing Module.
+	- Feature Extraction/Selection Module.
+	- Model Selection/Training Module.
+	- Performance Analysis Module.
+	- (Optional) Any other developed modules.
+	- Enhancements and Future work.
+
+- Classifiy the test set and save result.txt, time.txt on the required format
+

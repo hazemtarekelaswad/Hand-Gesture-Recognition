@@ -7,6 +7,16 @@ import os
 import cv2
 
 
+# list is a list of lists of lists
+def map_list_to_2D_nparray(list, width):
+    # check if it can be mapped to a 2D array
+    if len(list) % width != 0:
+        raise Exception(
+            "The list cannot be mapped to a 3D array with the given width")
+    height = int(len(list) / width)
+    return np.array(list).reshape(height, int(width), -1)
+
+
 def divide_image(img, cell_size) -> np.ndarray:
     """
     Divides an image into blocks of size cell_size x cell_size, has to be divisible by the image size
@@ -54,7 +64,8 @@ def read_images(dataset_path: str):
             if image is None:
                 print(f'File {file} is not a valid image. Skipping...')
                 continue
-
+            
+            print(f'Reading image {file_path}...')
             images.append(image)
             labels.append(int(file[0]))
 

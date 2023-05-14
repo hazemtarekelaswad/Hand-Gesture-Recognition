@@ -58,7 +58,6 @@ def run_preprocessor(dataset_path: str, dest_path: str):
 
         for file in filenames:
             if not file.endswith('.jpg') and not file.endswith('.JPG'):
-                print(f'File {file} is not a jpg file. Skipping...')
                 continue
 
             file_path = os.path.join(dirpath, file)
@@ -66,10 +65,8 @@ def run_preprocessor(dataset_path: str, dest_path: str):
             # to avoid reading corrupted images
             image = cv2.imread(file_path)
             if image is None:
-                print(f'File {file} is not a valid image. Skipping...')
                 continue
 
-            print(f'Preprocessing image {file_path}...')
             image = preprocess_image(image)
             cv2.imwrite(os.path.join(dest_path, f'{file}'), image)
             # labels.append(int(file[0]))

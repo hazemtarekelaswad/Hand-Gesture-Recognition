@@ -34,7 +34,6 @@ def extract_features(pp_images, order):
     images_features = []
 
     for i, image in enumerate(pp_images):            
-        print(f'Extracting features from image [EFD] {i + 1}...')
         features = elliptical_fourier(image, order)
         images_features.append(features)
 
@@ -59,7 +58,6 @@ def run_elliptical_fourier(pp_dataset_path: str):
 
         for file in filenames:
             if not file.endswith('.jpg') and not file.endswith('.JPG'):
-                print(f'File {file} is not a jpg file. Skipping...')
                 continue
 
             file_path = os.path.join(dirpath, file)
@@ -67,10 +65,8 @@ def run_elliptical_fourier(pp_dataset_path: str):
             # to avoid reading corrupted images
             image = cv2.imread(file_path)
             if image is None:
-                print(f'File {file} is not a valid image. Skipping...')
                 continue
             
-            print(f'Extracting features from image [EFD]: {file}...')
             features = elliptical_fourier(image)
             images_features.append(features)
             labels.append(int(file[0]))

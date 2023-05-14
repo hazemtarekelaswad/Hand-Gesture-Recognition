@@ -9,6 +9,7 @@ import numpy as np
 from utils.common_functions import read_images, show_images
 import sys
 from natsort import natsorted
+import pickle
 
 
 '''
@@ -25,29 +26,29 @@ def classify(image, model):
 
     hog_descriptor = hog.HogDescriptor()
     hog_features_builtin = hog_descriptor.builtin_hog_descriptor(pp_image)
-    hog_features_custom = hog_descriptor.extract_features(pp_image)
+    # hog_features_custom = hog_descriptor.extract_features(pp_image)
     
     efd_features = efd_features.reshape(1, -1)
     hog_features_builtin = hog_features_builtin.reshape(1, -1)
-    hog_features_custom = hog_features_custom.reshape(1, -1)
+    # hog_features_custom = hog_features_custom.reshape(1, -1)
 
     hog_efd_features_builtin = np.concatenate((hog_features_builtin, efd_features), axis=1)
-    hog_efd_features_custom = np.concatenate((hog_features_custom, efd_features), axis=1)
+    # hog_efd_features_custom = np.concatenate((hog_features_custom, efd_features), axis=1)
     
     # TODO: Classify the image using the trained model
-    # pred_label = model.predict(hog_efd_features_builtin)
+    pred_label = model.predict(hog_efd_features_builtin)
     
     end_time = time.time()
 
     # TODO: Return the image class
     # return pred_label, round(end_time - start_time, 3)
-    return 0, round(end_time - start_time, 3)
+    return pred_label[0], round(end_time - start_time, 3)
 
 def run_pipline(src_path: str, dest_path: str):
     results = []
     times = []
     # TODO: Load the model
-    model = None
+    model = pickle.load(open(os.path.join(os.path.dirname(__file__), '../models/model.pkl'), 'rb'))
 
     # read images from src_path
     for file in natsorted(os.listdir(src_path)):
@@ -125,34 +126,34 @@ def feature_extraction():
 if __name__ == "__main__":
     ## TRAINING PHASE
 
-    preprocessing()
-    feature_extraction()
+    # preprocessing()
+    # feature_extraction()
 
     
-    ## TESTING PHASE
+    # TESTING PHASE
     # argv[1]: Relative path to the test dataset [Default: ../data]
     # argv[2]: Relative path to the output folder [Default: ../results]
 
-    # if len(sys.argv) > 3:
-    #     print('Too many arguments. Expected 2 arguments.')
-    #     exit(1)
+    if len(sys.argv) > 3:
+        print('Too many arguments. Expected 2 arguments.')
+        exit(1)
 
-    # if len(sys.argv) == 1:
-    #     sys.argv.append('../data')
-    #     sys.argv.append('../results')
-    # elif len(sys.argv) == 2:
-    #     sys.argv.append('../results')
+    if len(sys.argv) == 1:
+        sys.argv.append('../data')
+        sys.argv.append('../results')
+    elif len(sys.argv) == 2:
+        sys.argv.append('../results')
 
-    # if not os.path.exists(os.path.join(os.path.dirname(__file__), sys.argv[1])):
-    #     print(f'Dataset path "{sys.argv[1]}" does not exist.')
-    #     exit(1)
+    if not os.path.exists(os.path.join(os.path.dirname(__file__), sys.argv[1])):
+        print(f'Dataset path "{sys.argv[1]}" does not exist.')
+        exit(1)
     
-    # if not os.path.exists(os.path.join(os.path.dirname(__file__), sys.argv[2])):
-    #     print(f'Output path "{sys.argv[2]}" does not exist.')
-    #     exit(1)
+    if not os.path.exists(os.path.join(os.path.dirname(__file__), sys.argv[2])):
+        print(f'Output path "{sys.argv[2]}" does not exist.')
+        exit(1)
 
 
-    # run_pipline(
-    #     src_path = os.path.join(os.path.dirname(__file__), sys.argv[1]),
-    #     dest_path = os.path.join(os.path.dirname(__file__), sys.argv[2])
-    # )
+    run_pipline(
+        src_path = os.path.join(os.path.dirname(__file__), sys.argv[1]),
+        dest_path = os.path.join(os.path.dirname(__file__), sys.argv[2])
+    )

@@ -17,9 +17,9 @@ def crop_image(image, threshold=40):
     white_count_right = np.sum(right == 255)
     
     if white_count_left > white_count_right:
-        image = image[:, threshold:-20]
+        image = image[:, threshold:]
     else:
-        image = image[:, 20:-threshold]
+        image = image[:, :-threshold]
     return image
 
 def preprocess_image(image: np.ndarray) -> np.ndarray:
@@ -34,12 +34,12 @@ def preprocess_image(image: np.ndarray) -> np.ndarray:
     upper_bound = np.array([255, 173, 127]) 
     image = cv2.inRange(image, lower_bound, upper_bound)
 
-    kernel = np.ones((5, 5), np.uint8)
-    image = cv2.erode(image, kernel, iterations=1)
+    image = cv2.erode(image, np.ones((5, 5), np.uint8), iterations=1)
+    # image = cv2.dilate(image, np.ones((5, 5), np.uint8), iterations=1)
 
     image = ndimage.binary_fill_holes(image).astype(np.int8)
     image = change_gray_range(image, format=255)
-    image = crop_image(image)
+    # image = crop_image(image)
 
     return image
 

@@ -125,34 +125,34 @@ def feature_extraction():
 if __name__ == "__main__":
     ## TRAINING PHASE
 
-    # preprocessing()
-    # feature_extraction()
+    preprocessing()
+    feature_extraction()
 
     
     ## TESTING PHASE
     # argv[1]: Relative path to the test dataset [Default: ../data]
     # argv[2]: Relative path to the output folder [Default: ../results]
 
-    if len(sys.argv) > 3:
-        print('Too many arguments. Expected 2 arguments.')
-        exit(1)
+    # if len(sys.argv) > 3:
+    #     print('Too many arguments. Expected 2 arguments.')
+    #     exit(1)
 
-    if len(sys.argv) == 1:
-        sys.argv.append('../data')
-        sys.argv.append('../results')
-    elif len(sys.argv) == 2:
-        sys.argv.append('../results')
+    # if len(sys.argv) == 1:
+    #     sys.argv.append('../data')
+    #     sys.argv.append('../results')
+    # elif len(sys.argv) == 2:
+    #     sys.argv.append('../results')
 
-    if not os.path.exists(os.path.join(os.path.dirname(__file__), sys.argv[1])):
-        print(f'Dataset path "{sys.argv[1]}" does not exist.')
-        exit(1)
+    # if not os.path.exists(os.path.join(os.path.dirname(__file__), sys.argv[1])):
+    #     print(f'Dataset path "{sys.argv[1]}" does not exist.')
+    #     exit(1)
     
-    if not os.path.exists(os.path.join(os.path.dirname(__file__), sys.argv[2])):
-        print(f'Output path "{sys.argv[2]}" does not exist.')
-        exit(1)
+    # if not os.path.exists(os.path.join(os.path.dirname(__file__), sys.argv[2])):
+    #     print(f'Output path "{sys.argv[2]}" does not exist.')
+    #     exit(1)
 
 
-    run_pipline(
-        src_path = os.path.join(os.path.dirname(__file__), sys.argv[1]),
-        dest_path = os.path.join(os.path.dirname(__file__), sys.argv[2])
-    )
+    # run_pipline(
+    #     src_path = os.path.join(os.path.dirname(__file__), sys.argv[1]),
+    #     dest_path = os.path.join(os.path.dirname(__file__), sys.argv[2])
+    # )

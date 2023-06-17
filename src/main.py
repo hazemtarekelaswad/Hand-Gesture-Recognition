@@ -35,19 +35,19 @@ def classify(image, model):
     hog_efd_features_builtin = np.concatenate((hog_features_builtin, efd_features), axis=1)
     # hog_efd_features_custom = np.concatenate((hog_features_custom, efd_features), axis=1)
     
-    # TODO: Classify the image using the trained model
+    # Classify the image using the trained model
     pred_label = model.predict(hog_efd_features_builtin)
     
     end_time = time.time()
 
-    # TODO: Return the image class
+    # Return the image class
     # return pred_label, round(end_time - start_time, 3)
     return pred_label[0], round(end_time - start_time, 3)
 
 def run_pipline(src_path: str, dest_path: str):
     results = []
     times = []
-    # TODO: Load the model
+    # Load the model
     model = pickle.load(open(os.path.join(os.path.dirname(__file__), '../models/model.pkl'), 'rb'))
 
     # read images from src_path
